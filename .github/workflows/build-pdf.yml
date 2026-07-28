@@ -1,0 +1,44 @@
+name: Build handbook PDF
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/**"
+      - "scripts/**"
+      - "requirements.txt"
+      - ".github/workflows/build-pdf.yml"
+  pull_request:
+    paths:
+      - "content/**"
+      - "scripts/**"
+      - "requirements.txt"
+      - ".github/workflows/build-pdf.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Generate handbook
+        run: python scripts/generate_pdf.py
+
+      - name: Upload handbook artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: satisfactory-handbook
+          path: dist/EGGS_Operations_Handbook.pdf
+          if-no-files-found: error
