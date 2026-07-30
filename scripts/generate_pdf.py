@@ -49,12 +49,16 @@ def inline_markup(text: str) -> str:
         placeholders.append(value)
         return f"@@MARKUP{len(placeholders) - 1}@@"
 
+    def render_link(match: re.Match[str]) -> str:
+        href = escape(match.group(2), {'"': "&quot;"})
+        label = escape(match.group(1))
+        return stash(
+            f'<link href="{href}" color="#277A78"><u>{label}</u></link>'
+        )
+
     text = re.sub(
         r"\[([^\]]+)\]\((https?://[^)]+)\)",
-        lambda m: stash(
-            f'<link href="{escape(m.group(2), {"\"": "&quot;"})}" '
-            f'color="#277A78"><u>{escape(m.group(1))}</u></link>'
-        ),
+        render_link,
         text,
     )
     text = escape(text)
